@@ -14,5 +14,6 @@
             "homepage": "https://lemuelpuglisi.github.io"
         }
     ],
+    "minimum-stability": "dev",
     "require": {}
 }
