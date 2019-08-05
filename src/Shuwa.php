@@ -32,7 +32,7 @@
             $this->request = str_ireplace("SOURCE", $this->srcLang, $this->request); 
             $this->request = str_ireplace("TARGET", $this->tgtLang, $this->request); 
 
-            $this->safeMode = $config['SAFE_MODE']; 
+            $this->safeMode = $this->config['SAFE_MODE']; 
             if ($this->safeMode) {
                 $this->proxySystem = new ProxySystem();
                 $this->currentProxy = $this->proxySystem->fire();  
