@@ -30,18 +30,18 @@
             /*  
             *   Scrape the proxy list when the class is instantiated
             */
-            'AUTO_SCRAPE' => false, 
+            'AUTO_SCRAPE' => true, 
             
             /*  
             *   Fitler the proxy list when the class is instantiated
             */
-            'AUTO_FILTER' => false, 
+            'AUTO_FILTER' => true, 
 
             /*  
             *   Optimize the proxy list when the class is instantiated
             *   Note: please enable only if AUTO_FILTER is enabled.
             */
-            'AUTO_OPTIMIZE' => false, 
+            'AUTO_OPTIMIZE' => true, 
 
             /*  
             *   Fitler the proxy list on reload
@@ -59,7 +59,7 @@
             */
             'DISPLAY' => [
 
-                'SET' => true, 
+                'SET' => false, 
 
                 'SCRAPE' => "\n[ProxySys] Scraping & filling the proxy list\n",
 

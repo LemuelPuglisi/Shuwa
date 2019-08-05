@@ -1,5 +1,6 @@
 <?php
 
+
     class ProxySys {
 
         public $list; 
@@ -8,7 +9,7 @@
         public function __construct() {
 
             $this->list = array(); 
-            $this->config = include("../config/proxy.php"); 
+            $this->config = include("config/proxy.php"); 
             if( $this->config['AUTO_SCRAPE'] ) $this->scrape(); 
             if( $this->config['AUTO_FILTER'] ) $this->filter(); 
             if( $this->config['AUTO_OPTIMIZE'] ) $this->optimize(); 
@@ -86,7 +87,7 @@
         public function fire() {
             if ( sizeof($this->list) > 0 ) {
                 $proxy = $this->list[0]['proxy'];
-                array_splice($this->proxyList, 0, 1);
+                array_splice($this->list, 0, 1);
                 return $proxy;
             } else {
                 $this->reload(); 

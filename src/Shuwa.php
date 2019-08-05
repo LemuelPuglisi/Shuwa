@@ -1,32 +1,99 @@
 <?php
 
+    require 'ProxySys.php';
+
+    use ProxySys as ProxySystem; 
+
     class Shuwa {
 
-        // proxy system attributes
-        private $config; 
-        private $proxySys;
-        private $currentProxy;
-        
-        // translator attributes
-        public $srcLang; 
-        public $tgtLang; 
-        
-        public function __construct($source = "en", $target = "it") {
+        protected $config; 
+        protected $codes; 
+        protected $proxySystem;
+        protected $currentProxy;
+        protected $safeMode; 
+
+        protected $srcLang; 
+        protected $tgtLang; 
+        protected $request; 
+
+        public function __construct($source = 'en', $target = 'it') {
+
+            $this->codes = include('config/codes.php'); 
+            $this->config = include('config/shuwa.php'); 
+
+            if ( !$this->checkLanguageCode($source) || !$this->checkLanguageCode($target) ) {
+                throw new Exception($this->config['ERRORS']['CODES']); 
+            }
+
             $this->srcLang = $source; 
             $this->tgtLang = $target; 
-            // $this->proxySys = new ProxySys(); 
-            // $this->currentProxy = $this->proxySys->fire(); 
-            $this->config = include('../config/config.php'); 
+
+            $this->request = $this->config['API_URL'];
+            $this->request = str_ireplace("SOURCE", $this->srcLang, $this->request); 
+            $this->request = str_ireplace("TARGET", $this->tgtLang, $this->request); 
+
+            $this->safeMode = $config['SAFE_MODE']; 
+            if ($this->safeMode) {
+                $this->proxySystem = new ProxySystem();
+                $this->currentProxy = $this->proxySystem->fire();  
+            } 
+
         }
 
-        // set methods 
-        public function setSourceLang( $LangCode ) { $this->srcLang = $ln; }
-        public function setTargetLang( $LangCode ) { $this->tgtLang = $ln; }
-   
-        //get methods 
+        public function checkLanguageCode( $code ) {
+            return in_array($code, $this->codes); 
+        }
+
+        public function setSourceLang( $langCode ) {
+            if (!$this->checkLanguageCode($LangCode)) {
+                throw new Exception($this->config['ERRORS']['CODES']); 
+            } else $this->srcLang = $langCode; 
+        }
+
+        public function setTargetLang( $langCode ) {
+            if (!$this->checkLanguageCode($LangCode)) {
+                throw new Exception($this->config['ERRORS']['CODES']); 
+            } else $this->tgtLang = $langCode;; 
+        }
+
         public function getSourceLang() { return $this->srcLang; }
         public function getTargetLang() { return $this->tgtLang; }
 
+        public function setSafeMode( bool $mode ) {
+            if ($mode) {
+                $this->safeMode = true; 
+                $this->proxySystem = new ProxySystem();
+                $this->currentProxy = $this->proxySystem->fire();  
+            } else $this->safeMode = false; 
+        }
+
+        public function translate( string $quote, bool $banned = false ) {
+
+            $request = $this->request . urlencode($quote); 
+            $curl = curl_init();
+            if( $banned ) {
+                if(!$this->safeMode) $this->setSafeMode(true); 
+                curl_setopt($curl, CURLOPT_PROXY, $this->currentProxy);
+                curl_setopt($curl, CURLOPT_FOLLOWLOCATION, TRUE);
+                curl_setopt($curl, CURLOPT_HTTPPROXYTUNNEL, FALSE);
+                curl_setopt($curl, CURLOPT_MAXREDIRS, 5);
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+                curl_setopt($curl, CURLOPT_DNS_CACHE_TIMEOUT, 600);
+            }
+            curl_setopt($curl, CURLOPT_URL, $request);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($curl);
+            $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if($code != 200) {
+              $this->currentProxy = $this->proxySystem->fire();
+              curl_close($curl);
+              return $this->translate($text, true);
+            }
+            curl_close($curl);
+            return json_decode($response, true)[0][0][0];
         
+        }
+
     }
 
