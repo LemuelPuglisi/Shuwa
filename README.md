@@ -109,7 +109,9 @@ Documentation is coming.
 
 # Donate 
 
-Documentation is coming. 
+if you appreciate my work and want to offer me a coffee, feel free to do so! :) 
+
+Paypal: https://www.paypal.me/charlemgn
 
 ****
 
