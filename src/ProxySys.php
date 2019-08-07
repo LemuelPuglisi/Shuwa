@@ -1,14 +1,17 @@
 <?php
 
+    use Goutte\Client; 
 
     class ProxySys {
 
         public $list; 
+        public $client; 
         private $config = null; 
 
         public function __construct() {
 
             $this->list = array(); 
+            $this->client = new Client(); 
             $this->config = include("config/proxy.php"); 
             if( $this->config['AUTO_SCRAPE'] ) $this->scrape(); 
             if( $this->config['AUTO_FILTER'] ) $this->filter(); 
@@ -16,29 +19,47 @@
 
         }
 
-        public function scrape() {
-            
-            if( $this->config['DISPLAY']['SET'] ) echo $this->config['DISPLAY']['SCRAPE']; 
-            $response = file_get_contents($this->config['PROXY_URL']);
-            $start = strpos($response, $this->config['TAGS']['MASS_OPEN']);
-            $end = strpos($response, $this->config['TAGS']['MASS_CLOSE'], $start);
-            $response = substr($response, $start, $end - $start);
-            $separator = "\r\n";
-            $response = str_replace($this->config['TAGS']['ENDLINE'], $this->config['TAGS']['ENDLINE'].$separator, $response);
-            $line = strtok($response, $separator);
-            while ($line !== false) {
-                $ipSPos = strpos($line, $this->config['TAGS']['ATOMIC_OPEN']);
-                $ipEPos = strpos($line, $this->config['TAGS']['ATOMIC_CLOSE'], $ipSPos);
-                $portSPos = strpos($line, $this->config['TAGS']['ATOMIC_OPEN'], $ipEPos);
-                $portEPos = strpos($line, $this->config['TAGS']['ATOMIC_CLOSE'], $portSPos);
-                $atomTln = strlen($this->config['TAGS']['ATOMIC_OPEN']); 
-                $ip = substr($line, $ipSPos + $atomTln, $ipEPos - $ipSPos - $atomTln);
-                $port = substr($line, $portSPos + $atomTln, $portEPos - $portSPos - $atomTln);
-                $newProxy = array("proxy" => $ip.":".$port, "ms" => null);
-                array_push($this->list, $newProxy);
-                $line = strtok( $separator );
-            }
+        public function setDisplay( bool $flag ) { $this->config['DISPLAY']['SET'] = $flag; }
 
+        public function setTTL( int $ttl ) { $this->config['TTL'] = $ttl; }
+
+        public function setReserveSSL( bool $flag ) { $this->config['RESERVE_SSL'] = $flag; }
+
+        public function setListLimit( int $limit ) { $this->config['LIST_LIMIT'] = $limit; }
+
+        public function scrape() {
+            $this->list = array();
+            if( $this->config['DISPLAY']['SET'] ) echo $this->config['DISPLAY']['SCRAPE']; 
+            $crawler = $this->client->request('GET', $this->config['PROXY_URL']); 
+            if( $this->client->getResponse()->getStatus() !== 200) {
+                if( $this->config['DISPLAY']['SET'] ) echo $this->config['DISPLAY']['SYS_FAULT'];                 
+                $this->supportSource( $this->config['RESERVE_SSL'] ); 
+                return; 
+            }
+            $table = $crawler->filter('tbody')->first()->filter('tr')->each(function ($tr, $i) {
+                return $tr->filter('td')->each(function ($td, $i) {
+                    return trim($td->text());
+                });
+            });
+            foreach($table as $record) {
+                $newProxy = array("proxy" => $record[0].":".$record[1], "ms" => null);
+                array_push($this->list, $newProxy);
+            }
+        }
+
+        public function supportSource( $https = false ) {
+            $request = $this->config['PROXY_API'];
+            if($https) $request = $this->config['SPROXY_API'];
+            $reserve = file_get_contents($request);
+            $line = strtok($reserve, "\n");
+            $this->list = array();
+            $proxyCounter = 0; 
+            while($line !== false && $proxyCounter < $this->config['LIST_LIMIT']) {
+                $newProxy = array("proxy" => trim($line), "ms" => null);
+                array_push($this->list, $newProxy);
+                $line = strtok("\n"); 
+                $proxyCounter ++; 
+            }
         }
 
         public function filter() {
