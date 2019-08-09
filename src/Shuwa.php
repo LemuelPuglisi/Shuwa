@@ -1,6 +1,6 @@
 <?php
 
-    require 'ProxySys.php';
+    require_once 'ProxySys.php';
 
     use ProxySys as ProxySystem; 
 
@@ -21,12 +21,12 @@
             $this->codes = include('config/codes.php'); 
             $this->config = include('config/shuwa.php'); 
 
-            if ( !$this->checkLanguageCode($source) || !$this->checkLanguageCode($target) ) {
+            $this->srcLang = strtolower($source); 
+            $this->tgtLang = strtolower($target); 
+
+            if ( !$this->checkLanguageCode($this->srcLang) || !$this->checkLanguageCode($this->tgtLang) ) {
                 throw new Exception($this->config['ERRORS']['CODES']); 
             }
-
-            $this->srcLang = $source; 
-            $this->tgtLang = $target; 
 
             $this->request = $this->config['API_URL'];
             $this->request = str_ireplace("SOURCE", $this->srcLang, $this->request); 
@@ -88,12 +88,12 @@
             if($code != 200) {
               $this->currentProxy = $this->proxySystem->fire();
               curl_close($curl);
-              return $this->translate($text, true);
+              return $this->translate($quote, true);
             }
             curl_close($curl);
             return json_decode($response, true)[0][0][0];
         
         }
 
-    }
+    }; 
 
