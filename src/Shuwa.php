@@ -2,7 +2,7 @@
 
     namespace charlemagne\Shuwa; 
 
-    use ProxySys as ProxySystem; 
+    use charlemagne\Shuwa\ProxySys as ProxySystem; 
 
     class Shuwa {
 
@@ -36,7 +36,7 @@
             if ($this->safeMode) {
                 $this->proxySystem = new ProxySystem();
                 $this->currentProxy = $this->proxySystem->fire();  
-            } 
+            } else $this->proxySystem = null; 
 
         }
 
@@ -70,7 +70,7 @@
 
 
         public function setSafeMode( bool $mode ) {
-            if ($mode) {
+            if ($mode && $this->proxySystem === null) {
                 $this->safeMode = true; 
                 $this->proxySystem = new ProxySystem();
                 $this->currentProxy = $this->proxySystem->fire();  
