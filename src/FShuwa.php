@@ -1,30 +1,21 @@
 <?php
 
-    require_once 'Shuwa.php'; 
+    namespace charlemagne\Shuwa; 
+
+    use charlemagne\Shuwa\Shuwa; 
 
     class FShuwa extends Shuwa {
 
         protected $blacklist; 
 
         public function __construct($source = 'en', $target = 'it') {
+           
             parent::__construct($source, $target); 
             $this->blacklist = $this->config['FILE']['BLACKLIST']; 
+        
         }
 
-        private function validate( $quote ) {
-
-            if( ! $this->config['FILE']['VALIDATION'] ) return true; 
-            if( $this->config['FILE']['HTML_INTEGRITY'] && $quote != strip_tags($quote) ) return false;  
-            if( $this->config['FILE']['MANTAIN_SINGLE_WORDS'] && strpos($quote, " ") === false ) return false;  
-            foreach ($this->blacklist as $word)
-                if(strpos($quote, $word) !== false) return false;
-            return true;
-
-        }    
-
-        private function bind( $quote ) {
-            return str_replace("'", "\\'", $quote);
-        }
+        // private class services
 
         private function safeTranslation( $quote ) {
 
@@ -45,6 +36,8 @@
             return $quote;
         
         }
+
+
 
         private function innerTranslate( $file, $key, $value ) {
 
@@ -72,8 +65,30 @@
             }
 
         }        
+        
 
-        public function fileTranslate( $source, $destination ) {
+
+        public function validate( $quote ) {
+
+            if( ! $this->config['FILE']['VALIDATION'] ) return true; 
+            if( $this->config['FILE']['HTML_INTEGRITY'] && $quote != strip_tags($quote) ) return false;  
+            if( $this->config['FILE']['MANTAIN_SINGLE_WORDS'] && strpos($quote, " ") === false ) return false;  
+            
+            foreach ($this->blacklist as $word)
+                if(strpos($quote, $word) !== false) return false;
+           
+            return true;
+
+        }    
+
+
+
+        public function bind( $quote ) {
+            return str_replace("'", "\\'", $quote);
+        }
+
+
+        public function laravelTranslation( $source, $destination ) {
             
             $quotes = include($source);
             $output = fopen($destination, "w"); 
@@ -83,6 +98,19 @@
             fwrite($output, $this->config['FILE']['TRAILER'] );  
         
         }            
+
+
+
+        public function codeIgniterTranslation( &$lang ) {
+
+            foreach ($lang as $key => $value) {
+                if( $this->validate($value) ) {
+                    $lang[$key] = $this->bind( $this->translate( $value ) ); 
+                }
+            }
+            return $lang; 
+
+        }
 
     }; 
 

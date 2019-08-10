@@ -17,5 +17,10 @@
     "minimum-stability": "stable",
     "require": {
         "fabpot/goutte": "^3.2"
-    }
+    }, 
+    "autoload" : {
+        "psr-4": {
+            "charlemagne\\Shuwa\\": "src/"
+        }
+    } 
 }

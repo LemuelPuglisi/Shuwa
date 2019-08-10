@@ -1,6 +1,6 @@
 <?php
 
-    require_once 'ProxySys.php';
+    namespace charlemagne\Shuwa; 
 
     use ProxySys as ProxySystem; 
 
@@ -40,9 +40,13 @@
 
         }
 
+
+
         public function checkLanguageCode( $code ) {
             return in_array($code, $this->codes); 
         }
+
+
 
         public function setSourceLang( $langCode ) {
             if (!$this->checkLanguageCode($LangCode)) {
@@ -50,14 +54,20 @@
             } else $this->srcLang = $langCode; 
         }
 
+
+
         public function setTargetLang( $langCode ) {
             if (!$this->checkLanguageCode($LangCode)) {
                 throw new Exception($this->config['ERRORS']['CODES']); 
             } else $this->tgtLang = $langCode;; 
         }
 
+
+
         public function getSourceLang() { return $this->srcLang; }
         public function getTargetLang() { return $this->tgtLang; }
+
+
 
         public function setSafeMode( bool $mode ) {
             if ($mode) {
@@ -66,6 +76,8 @@
                 $this->currentProxy = $this->proxySystem->fire();  
             } else $this->safeMode = false; 
         }
+
+
 
         public function translate( string $quote, bool $banned = false ) {
 
@@ -94,6 +106,8 @@
             return json_decode($response, true)[0][0][0];
         
         }
+
+
 
     }; 
 

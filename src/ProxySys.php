@@ -1,5 +1,7 @@
 <?php
 
+    namespace charlemagne\Shuwa; 
+
     use Goutte\Client; 
 
     class ProxySys {
@@ -19,6 +21,9 @@
 
         }
 
+
+        // Settings
+
         public function setDisplay( bool $flag ) { $this->config['DISPLAY']['SET'] = $flag; }
 
         public function setTTL( int $ttl ) { $this->config['TTL'] = $ttl; }
@@ -26,6 +31,8 @@
         public function setReserveSSL( bool $flag ) { $this->config['RESERVE_SSL'] = $flag; }
 
         public function setListLimit( int $limit ) { $this->config['LIST_LIMIT'] = $limit; }
+
+
 
         public function scrape() {
             $this->list = array();
@@ -47,6 +54,8 @@
             }
         }
 
+
+
         public function supportSource( $https = false ) {
             $request = $this->config['PROXY_API'];
             if($https) $request = $this->config['SPROXY_API'];
@@ -61,6 +70,8 @@
                 $proxyCounter ++; 
             }
         }
+
+
 
         public function filter() {
 
@@ -87,6 +98,8 @@
 
         }
 
+
+
         public function optimize() {
             if(!isset($this->list[0]) || $this->list[0]['ms'] === null) $this->filter(); 
             if( $this->config['DISPLAY']['SET'] ) echo $this->config['DISPLAY']['OPTIMIZE'];     
@@ -97,6 +110,8 @@
             });
         }
 
+
+
         public function reload() {
 
             if( $this->config['DISPLAY']['SET'] ) echo $this->config['DISPLAY']['RELOAD'];     
@@ -104,6 +119,8 @@
             if( $this->config['FILTER_ON_RELOAD'] ) $this->filter(); 
             if( $this->config['OPTIMIZE_ON_RELOAD'] ) $this->optimize(); 
         }
+
+
 
         public function fire() {
             if ( sizeof($this->list) > 0 ) {
@@ -115,6 +132,8 @@
                 $this->fire(); 
             }
         }
+
+
 
     }
 
