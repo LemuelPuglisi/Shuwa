@@ -113,7 +113,7 @@ Quick list of all basic functions:
     // translate a word or a quote
     $shuwa->translate('Hello world!');
     // translate a word or a quote using a proxy
-    $shuwa->translate('Hello world!'); 
+    $shuwa->translate('Hello world!', true); 
     
 ```
 
