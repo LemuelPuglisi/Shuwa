@@ -26,7 +26,9 @@
         */
         'ERRORS' => [
 
-            'CODES' => 'Source/Target language codes must be valid.'
+            'CODES' => 'Source/Target language codes must be valid.', 
+
+            'PROXY' => 'You must insert a valid proxy, sample: 192.0.0.1:8080',
 
         ],
 
