@@ -8,6 +8,7 @@
     {
         protected $config;
         protected $codes;
+
         protected $proxySystem;
         protected $currentProxy;
         protected $safeMode;
@@ -16,7 +17,23 @@
         protected $tgtLang;
         protected $request;
 
-        public function __construct($source = 'en', $target = 'it')
+
+
+        private function detectLangFromResponse(string $response)
+        {
+            return json_decode($response, 1)[2];
+        }
+
+
+
+        private function getQuoteFromResponse(string $response)
+        {
+            return json_decode($response, 1)[0][0][0];
+        }
+
+
+
+        public function __construct($target = 'en', $source = 'auto')
         {
             $this->codes = include('config/codes.php');
             $this->config = include('config/shuwa.php');
@@ -25,7 +42,7 @@
             $this->tgtLang = strtolower($target);
 
             if (!$this->checkLanguageCode($this->srcLang) || !$this->checkLanguageCode($this->tgtLang)) {
-                throw new Exception($this->config['ERRORS']['CODES']);
+                throw new \Exception($this->config['ERRORS']['CODES']);
             }
 
             $this->request = $this->config['API_URL'];
@@ -38,6 +55,7 @@
                 $this->currentProxy = $this->proxySystem->fire();
             } else {
                 $this->proxySystem = null;
+                $this->currentProxy = null; 
             }
         }
 
@@ -52,8 +70,8 @@
 
         public function setSourceLang($langCode)
         {
-            if (!$this->checkLanguageCode($LangCode)) {
-                throw new Exception($this->config['ERRORS']['CODES']);
+            if (!$this->checkLanguageCode($langCode)) {
+                throw new \Exception($this->config['ERRORS']['CODES']);
             } else {
                 $this->srcLang = $langCode;
             }
@@ -63,7 +81,7 @@
 
         public function setTargetLang($langCode)
         {
-            if (!$this->checkLanguageCode($LangCode)) {
+            if (!$this->checkLanguageCode($langCode)) {
                 throw new Exception($this->config['ERRORS']['CODES']);
             } else {
                 $this->tgtLang = $langCode;
@@ -99,14 +117,49 @@
 
 
 
-        public function translate(string $quote, bool $banned = false)
+        public function setProxy(string $proxy) 
+        {
+            if (!preg_match('/^(\d[\d.]+):(\d+)\b/', $proxy)) {
+                throw new \Exception($this->config['ERRORS']['PROXY']);
+            }   
+            else {
+                $this->currentProxy = $proxy; 
+            }
+        }
+
+
+
+        public function getProxy()
+        {
+            return $this->currentProxy; 
+        }
+
+
+
+        public function detectLangFromQuote(string $quote)
+        {
+            $buffer = $this->srcLang;
+            $this->srcLang = "auto";
+            $proxyEnable = false; 
+            $this->translate($quote);
+            $detectedLang = $this->srcLang; 
+            $this->srcLang = $buffer;
+            return $detectedLang;
+        }
+
+
+
+        public function translate(string $quote, bool $enableProxy = false)
         {
             $request = $this->request . urlencode($quote);
             $curl = curl_init();
-            if ($banned) {
-                if (!$this->safeMode) {
-                    $this->setSafeMode(true);
+
+            if ($enableProxy || $this->safeMode) {
+
+                if($this->currentProxy === null) {
+                    $this->setSafeMode(true); 
                 }
+
                 curl_setopt($curl, CURLOPT_PROXY, $this->currentProxy);
                 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($curl, CURLOPT_HTTPPROXYTUNNEL, false);
@@ -115,16 +168,24 @@
                 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
                 curl_setopt($curl, CURLOPT_DNS_CACHE_TIMEOUT, 600);
             }
+
             curl_setopt($curl, CURLOPT_URL, $request);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             $response = curl_exec($curl);
             $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
             if ($code != 200) {
-                $this->currentProxy = $this->proxySystem->fire();
+                $this->currentProxy = null;
                 curl_close($curl);
                 return $this->translate($quote, true);
             }
+
             curl_close($curl);
-            return json_decode($response, true)[0][0][0];
+
+            if ($this->srcLang == 'auto') {
+                $this->srcLang = $this->detectLangFromResponse($response);
+            }
+
+            return $this->getQuoteFromResponse($response);
         }
     };
