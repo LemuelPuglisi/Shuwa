@@ -1,5 +1,7 @@
 # charlemagne/shuwa
 
+![](https://img.shields.io/packagist/v/charlemagne/shuwa) ![](https://img.shields.io/packagist/dm/charlemagne/shuwa) ![](https://img.shields.io/github/license/lemuelpuglisi/Shuwa) ![](https://img.shields.io/github/issues/lemuelpuglisi/shuwa)
+
 > Disclaimer: This project has education purpose only. Consider buying the Official [Google Translate API](https://cloud.google.com/translate/docs/). 
 
 ## v1.1.1 Features 
