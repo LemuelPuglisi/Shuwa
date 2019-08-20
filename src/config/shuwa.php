@@ -22,6 +22,11 @@
         'SAFE_MODE' => false,
         
         /*
+        *   Shuwa requests timeout
+        */
+        'REQUEST_TIMEOUT' => 15, 
+
+        /*
         *   Process Errors
         */
         'ERRORS' => [

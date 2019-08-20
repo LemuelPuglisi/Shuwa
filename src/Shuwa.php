@@ -109,7 +109,6 @@
             if ($mode && $this->proxySystem === null) {
                 $this->safeMode = true;
                 $this->proxySystem = new ProxySystem();
-                $this->currentProxy = $this->proxySystem->fire();
             } else {
                 $this->safeMode = false;
             }
@@ -158,7 +157,8 @@
 
                 if($this->currentProxy === null) {
                     $this->setSafeMode(true); 
-                }
+                    $this->currentProxy = $this->proxySystem->fire();   
+                } 
 
                 curl_setopt($curl, CURLOPT_PROXY, $this->currentProxy);
                 curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
@@ -169,8 +169,10 @@
                 curl_setopt($curl, CURLOPT_DNS_CACHE_TIMEOUT, 600);
             }
 
-            curl_setopt($curl, CURLOPT_URL, $request);
+            curl_setopt($curl, CURLOPT_TIMEOUT, $this->config['REQUEST_TIMEOUT']);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curl, CURLOPT_URL, $request);
+
             $response = curl_exec($curl);
             $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
