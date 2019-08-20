@@ -162,6 +162,10 @@ Enable the safe mode while creating the object.
 
 > 'SAFE_MODE' => true,
 
+Set timeout seconds to the requests (Preventing a deadlock).
+
+> 'REQUEST_TIMEOUT' => 15, 
+
 ##### FShuwa class options
 
 If you want to keep a word in native language while translating **a file**, you should use the target option.
