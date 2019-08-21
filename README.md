@@ -4,8 +4,9 @@
 
 > Disclaimer: This project has education purpose only. Consider buying the Official [Google Translate API](https://cloud.google.com/translate/docs/). 
 
-## v1.1.1 Features 
+## v1.2.1 Features 
 
+> - Implementing the request timeout to prevent blocking requests.
 > - Auto-detect source language.
 > - Detect language from a quote function.
 > - Bug fixes. 
