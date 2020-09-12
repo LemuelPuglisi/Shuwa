@@ -58,7 +58,7 @@
                 echo $this->config['DISPLAY']['SCRAPE'];
             }
             $crawler = $this->client->request('GET', $this->config['PROXY_URL']);
-            if ($this->client->getResponse()->getStatus() !== 200) {
+            if ($this->client->getInternalResponse()->getStatusCode() !== 200) {
                 if ($this->config['DISPLAY']['SET']) {
                     echo $this->config['DISPLAY']['SYS_FAULT'];
                 }
