@@ -10,7 +10,7 @@
 
         public function __construct($source = 'en', $target = 'it')
         {
-            parent::__construct($source, $target);
+            parent::__construct($target, $source);
             $this->blacklist = $this->config['FILE']['BLACKLIST'];
         }
 

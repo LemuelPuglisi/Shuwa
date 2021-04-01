@@ -82,7 +82,7 @@
         public function setTargetLang($langCode)
         {
             if (!$this->checkLanguageCode($langCode)) {
-                throw new Exception($this->config['ERRORS']['CODES']);
+                throw new \Exception($this->config['ERRORS']['CODES']);
             } else {
                 $this->tgtLang = $langCode;
             };
